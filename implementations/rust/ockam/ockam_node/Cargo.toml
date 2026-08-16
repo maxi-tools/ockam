@@ -102,7 +102,13 @@ sqlx-core = { version = "0.8.3", optional = true, default-features = false }
 sqlx-postgres = { version = "0.8.2", optional = true, default-features = false }
 sqlx-sqlite = { version = "0.8.2", optional = true, default-features = false }
 tempfile = { version = "3.17.1", optional = true }
-time = { version = "=0.3.39", default-features = false, optional = true }
+# `^`, not `=`. An exact pin in a library makes it uncombinable: it is
+# optional here, but Cargo resolves optional dependencies whether or not a
+# feature activates them, so `=0.3.39` fails any workspace that already has
+# a newer 0.3.x -- maxi-transport reaches 0.3.47 through rcgen. The pin
+# looks like an MSRV guard; nothing in this crate needs that exact patch
+# release, and every consumer of ockam pays for it.
+time = { version = "^0.3.39", default-features = false, optional = true }
 tokio = { version = "1.43", default-features = false, optional = true, features = ["sync", "time", "rt", "rt-multi-thread", "macros"] }
 tokio-retry = { version = "0.3.0", optional = true }
 tracing = { version = "0.1", default-features = false }
