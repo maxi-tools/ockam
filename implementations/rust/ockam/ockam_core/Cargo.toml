@@ -74,7 +74,22 @@ debugger = []
 async-trait = "0.1.88"
 backtrace = { version = "0.3", default-features = false, features = ["std", "serialize-serde"], optional = true }
 cfg-if = "1.0"
-core2 = { version = "0.4.0", default-features = false, optional = true }
+# Sourced from the maxi-tools fork, NOT crates.io: every published core2 is
+# yanked (all 7 versions, since 2022) and bbqsrc/core2 upstream is archived
+# with its source deleted, so `core2 = "0.4.0"` cannot resolve at all -- which
+# is what kept ockam out of maxi-transport's dependency graph.
+#
+# Declared HERE rather than as a [patch.crates-io] in the consuming workspace
+# on purpose. A patch stanza is honoured only from the root of the workspace
+# being built, so every downstream git consumer would have to repeat it; a
+# dependency declared in this manifest is honoured for all of them. Verified:
+# a depth-2 consumer with no patch section of its own resolves cleanly.
+#
+# core2 is optional and used only by `#[cfg(not(feature = "std"))] pub use
+# core2::io;`, but Cargo locks optional dependencies whether or not they are
+# activated, so a std-only build still has to resolve it. Making the `alloc`
+# feature reference weak (`core2?/alloc`) does NOT avoid this -- measured.
+core2 = { git = "https://github.com/maxi-tools/core2", rev = "545e84bcb0f235b12e21351e0c69767958efe2a7", default-features = false, optional = true }
 futures-util = { version = "0.3.30", default-features = false, features = ["alloc", "async-await-macro", "sink"] }
 hashbrown = { version = "0.15.2", features = ["serde", "default-hasher", "equivalent"] }
 hex = { version = "0.4", default-features = false, optional = true }
