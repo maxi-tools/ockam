@@ -232,7 +232,7 @@ impl NodeManager {
 
         let options = if secure_channel_type == SecureChannelType::KeyExchangeOnly {
             // TODO: Should key exchange channels be persisted automatically?
-            options.key_exchange_only().persist()?
+            options.key_exchange_only_without_replay_protection().persist()?
         } else {
             options
         };
@@ -364,7 +364,7 @@ impl NodeManager {
 
         let options = if secure_channel_type == SecureChannelType::KeyExchangeOnly {
             // TODO: Should key exchange channels be persisted automatically?
-            options.key_exchange_only().persist()?
+            options.key_exchange_only_without_replay_protection().persist()?
         } else {
             options
         };

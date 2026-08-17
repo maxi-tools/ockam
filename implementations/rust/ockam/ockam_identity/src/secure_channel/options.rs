@@ -102,16 +102,39 @@ impl SecureChannelOptions {
         self.flow_control_id.clone()
     }
 
-    /// The secure channel will be used to exchange key only.
-    /// In this mode, the secure channel cannot be used to exchange messages, and key rotation
-    /// is disabled along with automatic credential refresh.
-    pub fn key_exchange_only(mut self) -> Self {
+    /// The secure channel will be used to exchange keys only. Application data is
+    /// then encrypted and decrypted through the api addresses rather than routed
+    /// through the channel.
+    ///
+    /// # This turns off two security properties. Read before using.
+    ///
+    /// The name says what the mode is *for*, not what it costs, and the cost is
+    /// not small. Measured against this source on 2026-08-17:
+    ///
+    /// - `DecryptorHandler::new` selects [`Decryptor::new_naive`] when this is
+    ///   set, which sets `nonce_tracker: None`. **There is no replay window and
+    ///   no replay rejection.** A captured ciphertext decrypts again, and again.
+    /// - `HandshakeWorker` passes `rekeying: false` to the `Encryptor`, so the
+    ///   channel key is never rotated. **No forward-secrecy ratchet.**
+    ///
+    /// Neither is mentioned by the mode's purpose, and both are exactly what a
+    /// caller reaching for "key exchange only" is least likely to be asking for.
+    /// The method is named for its cost so that reaching for it is a decision
+    /// rather than an accident.
+    ///
+    /// If you want the oracle without giving these up, do not set this: the api
+    /// addresses work in the default mode too. That is what maxi-transport's
+    /// bridge does.
+    ///
+    /// Renamed from `key_exchange_only` in the maxi-tools fork. Upstream
+    /// `build-trust/ockam` still calls it `key_exchange_only`.
+    pub fn key_exchange_only_without_replay_protection(mut self) -> Self {
         self.key_exchange_only = true;
         self
     }
 
     /// Secure Channel will be persisted after a successful handshake
-    /// NOTE: Currently only supported after setting key_exchange_only = true
+    /// NOTE: Currently only supported after key_exchange_only_without_replay_protection()
     pub fn persist(mut self) -> Result<Self> {
         if !self.key_exchange_only {
             return Err(IdentityError::PersistentSupportIsLimited.into());
@@ -255,16 +278,39 @@ impl SecureChannelListenerOptions {
         self.flow_control_id.clone()
     }
 
-    /// The listener will be used to exchange key only.
-    /// In this mode, the secure channel cannot be used to exchange messages, and key rotation
-    /// is disabled along with automatic credential refresh.
-    pub fn key_exchange_only(mut self) -> Self {
+    /// The secure channel will be used to exchange keys only. Application data is
+    /// then encrypted and decrypted through the api addresses rather than routed
+    /// through the channel.
+    ///
+    /// # This turns off two security properties. Read before using.
+    ///
+    /// The name says what the mode is *for*, not what it costs, and the cost is
+    /// not small. Measured against this source on 2026-08-17:
+    ///
+    /// - `DecryptorHandler::new` selects [`Decryptor::new_naive`] when this is
+    ///   set, which sets `nonce_tracker: None`. **There is no replay window and
+    ///   no replay rejection.** A captured ciphertext decrypts again, and again.
+    /// - `HandshakeWorker` passes `rekeying: false` to the `Encryptor`, so the
+    ///   channel key is never rotated. **No forward-secrecy ratchet.**
+    ///
+    /// Neither is mentioned by the mode's purpose, and both are exactly what a
+    /// caller reaching for "key exchange only" is least likely to be asking for.
+    /// The method is named for its cost so that reaching for it is a decision
+    /// rather than an accident.
+    ///
+    /// If you want the oracle without giving these up, do not set this: the api
+    /// addresses work in the default mode too. That is what maxi-transport's
+    /// bridge does.
+    ///
+    /// Renamed from `key_exchange_only` in the maxi-tools fork. Upstream
+    /// `build-trust/ockam` still calls it `key_exchange_only`.
+    pub fn key_exchange_only_without_replay_protection(mut self) -> Self {
         self.key_exchange_only = true;
         self
     }
 
     /// Secure Channel will be persisted after a successful handshake
-    /// NOTE: Currently only supported after setting key_exchange_only = true
+    /// NOTE: Currently only supported after key_exchange_only_without_replay_protection()
     pub fn persist(mut self) -> Result<Self> {
         if !self.key_exchange_only {
             return Err(IdentityError::PersistentSupportIsLimited.into());

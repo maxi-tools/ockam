@@ -1799,6 +1799,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "core2"
+version = "0.4.0"
+source = "git+https://github.com/maxi-tools/core2?rev=545e84bcb0f235b12e21351e0c69767958efe2a7#545e84bcb0f235b12e21351e0c69767958efe2a7"
+dependencies = [
+ "memchr",
+]
+
+[[package]]
 name = "cortex-m"
 version = "0.6.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4392,7 +4400,7 @@ version = "0.19.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6b430e7953c29dd6a09afc29ff0bb69c6e306329ee6794700aee27b76a1aea8d"
 dependencies = [
- "core2",
+ "core2 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "unsigned-varint",
 ]
 
@@ -5000,7 +5008,7 @@ dependencies = [
  "backtrace",
  "cddl-cat",
  "cfg-if",
- "core2",
+ "core2 0.4.0 (git+https://github.com/maxi-tools/core2?rev=545e84bcb0f235b12e21351e0c69767958efe2a7)",
  "futures-util",
  "hashbrown 0.15.5",
  "hex",
